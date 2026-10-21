@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Cuánto Cuesta este Dispositivo?</title>
+<style>
+  :root{
+    --verde:#1f9d55; --verde-osc:#167a41; --verde-cl:#e8f6ee;
+    --texto:#1d2733; --suave:#5b6775; --borde:#d5dde5; --fondo:#f4f7f9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--texto);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.4}
+  .wrap{max-width:620px;margin:0 auto;padding:20px 16px 40px}
+  h1{text-align:center;font-size:1.7rem;margin:8px 0 6px}
+  .sub{text-align:center;color:var(--suave);margin:0 0 18px;font-size:.95rem}
+  .elige{text-align:center;margin:0 0 10px;font-weight:600}
+  .caja{background:#fff;border:3px solid var(--verde);border-radius:6px;padding:18px}
+  label{display:block;font-size:.85rem;font-weight:600;margin:0 0 4px;color:var(--suave)}
+  input,select{width:100%;padding:10px 11px;font-size:1rem;border:1px solid var(--borde);
+    border-radius:6px;background:#fff;color:var(--texto);font-family:inherit}
+  input:focus,select:focus{outline:2px solid var(--verde);border-color:var(--verde)}
+  .fila{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .campo{margin-bottom:12px}
+  .fila .campo{margin-bottom:0}
+  .fila.fila3{grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .fila3 label{font-size:.78rem}
+  .archivo{border:2px solid var(--verde);border-radius:6px;padding:10px 12px;margin-bottom:14px;
+    display:flex;gap:12px;align-items:center;background:var(--verde-cl)}
+  .archivo input[type=file]{display:none}
+  .btn{cursor:pointer;border:0;border-radius:6px;padding:10px 16px;font-size:.95rem;font-weight:600;
+    font-family:inherit}
+  .btn-v{background:var(--verde);color:#fff}
+  .btn-v:hover{background:var(--verde-osc)}
+  .btn-g{background:#e9edf1;color:var(--texto)}
+  .btn-g:hover{background:#dce2e8}
+  #visor{margin-bottom:14px;border:2px dashed var(--borde);border-radius:6px;min-height:150px;
+    display:flex;align-items:center;justify-content:center;background:#fafcfb;overflow:hidden}
+  #visor .vacio{color:var(--suave);font-size:.88rem;text-align:center;padding:16px}
+  #visor img{display:none;max-width:100%;max-height:260px;object-fit:contain}
+  #visor.con-foto{border-style:solid;border-color:var(--verde)}
+  #visor.con-foto .vacio{display:none}
+  #visor.con-foto img{display:block}
+  #estadoFoto{font-size:.82rem;color:var(--suave);flex:1}
+  .acciones{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+  .acciones .btn{flex:1 1 140px}
+  #idInfo{display:none;margin:0 0 14px;padding:10px 12px;border-radius:6px;font-size:.88rem;
+    background:var(--verde-cl);color:var(--texto)}
+  #idInfo.on{display:block}
+  #idInfo.err{background:#fdecea;color:#8a1c12}
+  .gal-tit{font-weight:700;margin:0 0 8px}
+  #galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-bottom:6px}
+  .tile{cursor:pointer;border:1px solid var(--borde);background:#fff;border-radius:8px;padding:8px 4px 6px;
+    display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;color:var(--texto)}
+  .tile svg{width:44px;height:44px;color:var(--verde-osc)}
+  .tile span{font-size:.72rem;line-height:1.15;text-align:center}
+  .tile:hover{background:var(--verde-cl)}
+  .tile.sel{border:2px solid var(--verde);background:var(--verde-cl)}
+  p.o{text-align:center;color:var(--suave);font-size:.85rem;margin:10px 0}
+  #sugerencias{display:none;flex-wrap:wrap;gap:8px;margin:-6px 0 14px}
+  #sugerencias button{cursor:pointer;border:1px solid var(--verde);background:#fff;color:var(--verde-osc);
+    border-radius:999px;padding:6px 12px;font-size:.85rem;font-family:inherit}
+  #sugerencias button:hover{background:var(--verde-cl)}
+  #sinInternet{display:none;margin:0 0 12px;padding:8px 12px;border-radius:6px;background:#fff4d6;
+    color:#6b4e00;font-size:.88rem;text-align:center}
+  .btn-sm{padding:7px 12px;font-size:.85rem}
+  .claverow{display:flex;gap:8px;margin-top:10px}
+  .claverow input{flex:1}
+  .resultado{margin-top:16px;border-top:2px dashed var(--borde);padding-top:14px;text-align:center}
+  .resultado h2{font-size:1rem;margin:0 0 12px;font-weight:600}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 10px}
+  .dato small{display:block;color:var(--suave);font-size:.85rem}
+  .dato b{font-size:1.45rem}
+  .total{margin-top:16px;background:var(--verde-cl);border-radius:8px;padding:12px}
+  .total small{display:block;color:var(--suave)}
+  .total b{font-size:2.1rem;color:var(--verde-osc)}
+  .nota{font-size:.78rem;color:var(--suave);margin-top:10px}
+  details{margin-top:16px;background:#fff;border:1px solid var(--borde);border-radius:8px;padding:10px 14px}
+  summary{cursor:pointer;font-weight:600}
+  details .fila{margin-top:12px}
+  .totalfac{display:flex;justify-content:space-between;font-weight:700;margin:12px 0 4px;
+    padding-top:8px;border-top:1px solid var(--borde)}
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+  .checks label{display:flex;gap:6px;align-items:center;font-weight:500;color:var(--texto);margin:0;font-size:.88rem}
+  .checks input{width:auto}
+  .tasa-inf{font-size:.85rem;color:var(--suave)}
+  @media (max-width:420px){ .fila{grid-template-columns:1fr} h1{font-size:1.4rem} }
+  @media print{ .acciones,details,.archivo{display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>¿Cuánto Cuesta este Dispositivo?</h1>
+  <p class="sub">Calcula en dólares lo que consume un dispositivo eléctrico<br>(Tarifas de El Salvador)</p>
+  <p class="elige">Elige un dispositivo para ver su costo</p>
+
+  <div class="caja">
+    <div class="gal-tit">Elige un dispositivo similar</div>
+    <div id="galeria"></div>
+    <div id="idInfo" role="status"></div>
+
+    <div class="campo">
+      <label for="nombre">Nombre del dispositivo eléctrico</label>
+      <input id="nombre" list="lista" placeholder="Ej: Refrigeradora, Aire acondicionado…" autocomplete="off">
+      <datalist id="lista"></datalist>
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label for="potencia">Consumo (potencia)</label>
+        <input id="potencia" type="number" min="0" step="any" inputmode="decimal" placeholder="Ej: 150">
+      </div>
+      <div class="campo">
+        <label for="unidad">Unidad</label>
+        <select id="unidad">
+          <option value="W">Watts (W)</option>
+          <option value="kW">Kilowatts (kW)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label for="tiempo">Tiempo de uso por día (HH:MM)</label>
+        <input id="tiempo" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" autocomplete="off" style="font-variant-numeric:tabular-nums;letter-spacing:.05em">
+      </div>
+      <div class="campo">
+        <label for="dias">Días en el período</label>
+        <input id="dias" type="number" min="0" max="31" step="1" inputmode="numeric" placeholder="0 – 31">
+      </div>
+    </div>
+    <p class="tasa-inf" id="tiempoInfo" style="margin:-4px 0 12px">Escribe 4 dígitos y los dos puntos se agregan solos: <b>0800</b> = 08:00 (8 horas), <b>0130</b> = 01:30, <b>0045</b> = 45 minutos.</p>
+
+    <div class="campo">
+      <label for="factor">Factor de uso real (%) · ej. refrigeradora ≈ 35 % porque el motor se apaga y enciende</label>
+      <input id="factor" type="number" min="1" max="100" step="1" inputmode="numeric" value="100">
+    </div>
+
+    <div class="acciones">
+      <button class="btn btn-v" id="calcular" type="button">Calcular</button>
+      <button class="btn btn-g" id="limpiar" type="button">Limpiar / Nuevo cálculo</button>
+    </div>
+
+    <div class="resultado">
+      <h2>Costo estimado del período</h2>
+      <div class="grid">
+        <div class="dato"><small>Energía Consumida</small><b id="rKwh">0 KWh</b></div>
+        <div class="dato"><small>Costo por Día</small><b id="rDia">$0.00</b></div>
+        <div class="dato"><small>Tarifa Aplicada</small><b id="rTarifa">$0.3224/KWh</b></div>
+        <div class="dato"><small>Costo por Hora</small><b id="rHora">$0.00</b></div>
+      </div>
+      <div class="total">
+        <small>Valor en dólares del consumo del período</small>
+        <b id="rTotal">$0.00</b>
+      </div>
+      <p class="nota" id="nota">Estimación aproximada basada en el promedio típico del dispositivo y en los cargos de tu factura.</p>
+    </div>
+  </div>
+
+  <!-- Datos de la factura -->
+  <details id="factura">
+    <summary>Datos de la factura del período (editables)</summary>
+    <p class="tasa-inf">Estos datos se mantienen guardados en este navegador. Cámbialos cuando llegue un recibo nuevo.</p>
+    <div class="fila">
+      <div class="campo"><label for="f_kwh">Consumo de ese mes (KWh)</label>
+        <input id="f_kwh" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div class="campo"><label for="f_dist">Cargo de distribución ($)</label>
+        <input id="f_dist" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    </div>
+    <div class="fila">
+      <div class="campo"><label for="f_poste">Tasa municipal por poste ($)</label>
+        <input id="f_poste" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="campo"><label for="f_comer">Cargo de comercialización ($)</label>
+        <input id="f_comer" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    </div>
+    <div class="fila">
+      <div class="campo"><label for="f_energia">Cargo por energía bloque ($)</label>
+        <input id="f_energia" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="campo"><label for="f_residuos">Tasa de residuos ($)</label>
+        <input id="f_residuos" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    </div>
+    <div class="fila">
+      <div class="campo"><label for="f_alcaldia">Tasa alcaldía ($)</label>
+        <input id="f_alcaldia" type="number" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="campo"><label for="f_metodo">Cómo calcular la tarifa</label>
+        <select id="f_metodo">
+          <option value="variable">Costo real: solo cargos que cambian con el consumo</option>
+          <option value="promedio">Promedio de toda la factura (Total ÷ KWh)</option>
+        </select></div>
+    </div>
+    <div class="campo" id="f_varbox">
+      <label>Cargos que suben o bajan según los kWh consumidos (marca los que apliquen)</label>
+      <div class="checks">
+        <label><input type="checkbox" data-v="energia"> Energía</label>
+        <label><input type="checkbox" data-v="dist"> Distribución</label>
+        <label><input type="checkbox" data-v="comer"> Comercialización</label>
+        <label><input type="checkbox" data-v="poste"> Poste</label>
+        <label><input type="checkbox" data-v="residuos"> Residuos</label>
+        <label><input type="checkbox" data-v="alcaldia"> Alcaldía</label>
+      </div>
+    </div>
+    <div class="campo"><label for="f_manual">Tarifa manual ($/KWh) — opcional, reemplaza el cálculo</label>
+      <input id="f_manual" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="Dejar vacío para usar la factura"></div>
+    <div class="totalfac"><span>Total de la factura</span><span id="f_total">$0.00</span></div>
+    <p class="tasa-inf" id="f_tasa"></p>
+    <button class="btn btn-g" id="restablecer" type="button">Restablecer datos originales</button>
+  </details>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- Factura por defecto ---------- */
+  var FACTURA_BASE = { kwh:543, dist:26.54, poste:0.50, comer:0.98, energia:117.47, residuos:17.04, alcaldia:12.55 };
+  var CLAVE = "costo_dispositivo_factura_v2";
+  var VAR_BASE = { energia:true, dist:true, comer:false, poste:false, residuos:false, alcaldia:false };
+  var factura = Object.assign({}, FACTURA_BASE, { metodo:"variable", manual:"", vari:Object.assign({}, VAR_BASE) });
+
+  try {
+    var g = JSON.parse(localStorage.getItem(CLAVE) || "null");
+    if (g && typeof g === "object") factura = Object.assign(factura, g);
+    if (factura.metodo !== "promedio") factura.metodo = "variable";
+    factura.vari = Object.assign({}, VAR_BASE, factura.vari || {});
+  } catch(e){}
+
+  function guardarFactura(){ try { localStorage.setItem(CLAVE, JSON.stringify(factura)); } catch(e){} }
+
+  /* ---------- Dispositivos típicos ----------
+     w = potencia en watts · h = horas/día · d = días/mes · f = factor de uso (%) */
+  var DISPOSITIVOS = [
+    {n:"Refrigeradora",          w:150,  h:24,   d:30, f:35, k:["refri","nevera","refrigerad","fridge"]},
+    {n:"Vitrina refrigerante",   w:350,  h:24,   d:30, f:45, k:[]},
+    {n:"Congelador",             w:200,  h:24,   d:30, f:40, k:["congel","freezer"]},
+    {n:"Aire acondicionado 12000 BTU", w:1100, h:8, d:30, f:60, k:[]},
+    {n:"Ventilador",             w:55,   h:8,    d:30, f:100,k:["ventil","fan"]},
+    {n:"Ventilador de techo",    w:80,   h:8,    d:30, f:100,k:[]},
+    {n:"Ventilador de pared",    w:60,   h:8,    d:30, f:100,k:[]},
+    {n:"Televisor",              w:80,   h:5,    d:30, f:100,k:["tele","tv","televis"]},
+    {n:"Computadora de escritorio",w:200,h:8,    d:26, f:100,k:["compu","desktop","pc","cpu"]},
+    {n:"Laptop",                 w:60,   h:8,    d:26, f:100,k:["laptop","portatil","notebook"]},
+    {n:"Router WiFi",            w:12,   h:24,   d:30, f:100,k:["router","wifi","modem"]},
+    {n:"Foco LED",               w:9,    h:5,    d:30, f:100,k:["foco","bombill","led","lampara"]},
+    {n:"Licuadora",              w:400,  h:0.25, d:30, f:100,k:["licua","blender"]},
+    {n:"Microondas",             w:1100, h:0.3,  d:30, f:100,k:["microon","microwave"]},
+    {n:"Plancha de ropa",        w:1000, h:0.5,  d:12, f:60, k:["plancha","iron"]},
+    {n:"Lavadora",               w:500,  h:1,    d:12, f:100,k:["lavad","washer"]},
+    {n:"Secadora de ropa",       w:2500, h:1,    d:8,  f:100,k:["secadora"]},
+    {n:"Cafetera",               w:800,  h:0.5,  d:30, f:100,k:["cafet","coffee"]},
+    {n:"Olla arrocera",          w:500,  h:0.7,  d:30, f:100,k:["arroc","rice"]},
+    {n:"Freidora de aire",       w:1500, h:0.5,  d:20, f:100,k:["freidora","airfryer"]},
+    {n:"Horno eléctrico",        w:2000, h:1,    d:20, f:50, k:["horno","oven"]},
+    {n:"Cocina eléctrica",       w:2000, h:2,    d:30, f:50, k:["cocina","estufa"]},
+    {n:"Ducha eléctrica",        w:3500, h:0.5,  d:30, f:100,k:["ducha","shower"]},
+    {n:"Bomba de agua",          w:400,  h:1,    d:30, f:100,k:["bomba","pump"]},
+    {n:"Dispensador de agua",    w:100,  h:24,   d:30, f:30, k:["dispens"]},
+    {n:"Secadora de cabello",    w:1500, h:0.2,  d:30, f:100,k:["cabello","pelo","hairdryer"]},
+    {n:"Consola de videojuegos", w:120,  h:3,    d:30, f:100,k:["consola","playstation","xbox","nintendo"]},
+    {n:"Caminadora NordicTrack", w:600,  h:1,    d:20, f:100,k:[]},
+    {n:"Cargador de celular",    w:5,    h:3,    d:30, f:100,k:["cargador","celular","charger"]},
+    {n:"Tostadora",              w:800,  h:0.2,  d:30, f:100,k:[]},
+    {n:"Aspiradora",             w:1000, h:0.5,  d:8,  f:100,k:[]},
+    {n:"Lavavajillas",           w:1800, h:1,    d:20, f:100,k:[]},
+    {n:"Calentador eléctrico",   w:1500, h:3,    d:15, f:60, k:[]}
+  ];
+
+  var dl = $("lista");
+  DISPOSITIVOS.forEach(function(x){
+    var o = document.createElement("option"); o.value = x.n; dl.appendChild(o);
+  });
+
+  /* ---------- Utilidades ---------- */
+  function num(v){ var n = parseFloat(v); return (isFinite(n) && n > 0) ? n : 0; }
+  function dinero(n){
+    if (n > 0 && n < 0.01) return "$" + n.toFixed(4);
+    return "$" + n.toFixed(2);
+  }
+  function norm(s){
+    return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+  }
+
+  /* ---------- Factura ---------- */
+  var CAMPOS = { kwh:"f_kwh", dist:"f_dist", poste:"f_poste", comer:"f_comer",
+                 energia:"f_energia", residuos:"f_residuos", alcaldia:"f_alcaldia" };
+
+  function pintarFactura(){
+    Object.keys(CAMPOS).forEach(function(k){ $(CAMPOS[k]).value = factura[k]; });
+    $("f_metodo").value = factura.metodo;
+    var cbs = document.querySelectorAll("#f_varbox input[data-v]");
+    for (var i = 0; i < cbs.length; i++) cbs[i].checked = !!factura.vari[cbs[i].getAttribute("data-v")];
+    $("f_varbox").style.display = factura.metodo === "variable" ? "" : "none";
+    $("f_manual").value = factura.manual;
+  }
+
+  function totalFactura(){
+    return num(factura.dist)+num(factura.poste)+num(factura.comer)+
+           num(factura.energia)+num(factura.residuos)+num(factura.alcaldia);
+  }
+
+  function totalVariable(){
+    var t = 0;
+    Object.keys(factura.vari).forEach(function(k){ if (factura.vari[k]) t += num(factura[k]); });
+    return t;
+  }
+
+  function tarifa(){
+    var manual = num(factura.manual);
+    if (manual > 0) return manual;
+    var kwh = num(factura.kwh);
+    if (kwh <= 0) return 0;
+    return (factura.metodo === "promedio" ? totalFactura() : totalVariable()) / kwh;
+  }
+
+  function actualizarFactura(){
+    $("f_total").textContent = "$" + totalFactura().toFixed(2);
+    var t = tarifa();
+    var etiqueta = num(factura.manual) > 0 ? "tarifa manual"
+                  : (factura.metodo === "promedio" ? "total ÷ KWh" : "cargos variables $" + totalVariable().toFixed(2) + " ÷ KWh");
+    $("f_tasa").textContent = "Tarifa aplicada: $" + t.toFixed(4) + "/KWh (" + etiqueta + ")";
+  }
+
+  Object.keys(CAMPOS).forEach(function(k){
+    $(CAMPOS[k]).addEventListener("input", function(){
+      factura[k] = this.value; guardarFactura(); actualizarFactura(); refrescar();
+    });
+  });
+  $("f_metodo").addEventListener("change", function(){
+    factura.metodo = this.value;
+    $("f_varbox").style.display = factura.metodo === "variable" ? "" : "none";
+    guardarFactura(); actualizarFactura(); refrescar();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#f_varbox input[data-v]"), function(cb){
+    cb.addEventListener("change", function(){
+      factura.vari[this.getAttribute("data-v")] = this.checked;
+      guardarFactura(); actualizarFactura(); refrescar();
+    });
+  });
+  $("f_manual").addEventListener("input", function(){
+    factura.manual = this.value; guardarFactura(); actualizarFactura(); refrescar();
+  });
+  $("restablecer").addEventListener("click", function(){
+    factura = Object.assign({}, FACTURA_BASE, { metodo:"variable", manual:"", vari:Object.assign({}, VAR_BASE) });
+    guardarFactura(); pintarFactura(); actualizarFactura(); refrescar();
+  });
+
+  /* ---------- Tiempo de uso (horas y/o minutos en un solo campo) ---------- */
+  // Devuelve horas decimales, o null si no se entiende. Vacío = 0.
+  function leerTiempo(txt){
+    var t = (txt || "").toLowerCase().replace(/,/g, ".").trim();
+    if (!t) return 0;
+    var m = t.match(/^(\d+):(\d{1,2})$/);
+    if (m) return parseInt(m[1], 10) + parseInt(m[2], 10) / 60;
+    if (/^\d+(\.\d+)?$/.test(t)) return parseFloat(t);              // número solo = horas
+    var h = t.match(/(\d+(?:\.\d+)?)\s*(?:horas|hora|hrs|hr|h)(?![a-z])/);
+    var mi = t.match(/(\d+(?:\.\d+)?)\s*(?:minutos|minuto|mins|min|m)(?![a-z])/);
+    if (!h && !mi) return null;
+    var resto = t.replace(h ? h[0] : "", "").replace(mi ? mi[0] : "", "").replace(/\s|y|con/g, "");
+    if (resto) return null;
+    return (h ? parseFloat(h[1]) : 0) + (mi ? parseFloat(mi[1]) / 60 : 0);
+  }
+  function dos(n){ return (n < 10 ? "0" : "") + n; }
+  function formatearTiempo(horas){                       // HH:MM
+    var tot = Math.round(horas * 60);
+    return dos(Math.floor(tot / 60)) + ":" + dos(tot % 60);
+  }
+  function tiempoHumano(horas){
+    var tot = Math.round(horas * 60), hh = Math.floor(tot / 60), mm = tot % 60;
+    if (hh === 0) return mm + " min";
+    if (mm === 0) return hh + " h";
+    return hh + " h " + mm + " min";
+  }
+  /* Máscara HH:MM: solo dígitos, los dos puntos se ponen solos */
+  function enmascarar(raw){
+    var d = String(raw).replace(/\D/g, "").slice(0, 4);
+    if (d.length >= 1 && d.charAt(0) > "2") d = ("0" + d).slice(0, 4);          // 5 → 05
+    if (d.length >= 2 && parseInt(d.slice(0, 2), 10) > 24) d = "24" + d.slice(2);
+    if (d.length >= 3 && d.charAt(2) > "5") d = (d.slice(0, 2) + "0" + d.slice(2)).slice(0, 4);  // 08:7 → 08:07
+    if (d.length >= 3 && d.slice(0, 2) === "24") d = "2400".slice(0, d.length);
+    return d.length <= 2 ? d : d.slice(0, 2) + ":" + d.slice(2);
+  }
+  function completarTiempo(v){                            // al salir del campo: 8 → 08:00, 08:3 → 08:30
+    if (!v) return v;
+    var p = v.split(":");
+    return dos(parseInt(p[0] || "0", 10)) + ":" + (p[1] === undefined ? "00" : (p[1].length === 1 ? p[1] + "0" : p[1]));
+  }
+  function actualizarTiempoInfo(){
+    var v = leerTiempo($("tiempo").value), el = $("tiempoInfo");
+    if (v === null){ el.textContent = "Formato no válido. Usa HH:MM, por ejemplo 01:30."; el.style.color = "#8a1c12"; }
+    else if (v > 24){ el.textContent = "Un día solo tiene 24 horas: se usará 24 h."; el.style.color = "#8a1c12"; }
+    else if (!$("tiempo").value.trim()){ el.innerHTML = "Escribe 4 dígitos y los dos puntos se agregan solos: <b>0800</b> = 08:00 (8 horas), <b>0130</b> = 01:30, <b>0045</b> = 45 minutos."; el.style.color = ""; }
+    else { el.textContent = "Se calculará con " + tiempoHumano(v) + " por día."; el.style.color = ""; }
+  }
+
+  /* ---------- Cálculo ---------- */
+  var calculado = false;
+
+  function resetResultados(){
+    calculado = false;
+    $("rKwh").textContent = "0 KWh";
+    $("rDia").textContent = "$0.00";
+    $("rHora").textContent = "$0.00";
+    $("rTotal").textContent = "$0.00";
+    $("rTarifa").textContent = "$" + tarifa().toFixed(4) + "/KWh";
+    $("nota").textContent = "Completa los datos y pulsa «Calcular».";
+  }
+  function refrescar(){
+    if (calculado) calcular();
+    else $("rTarifa").textContent = "$" + tarifa().toFixed(4) + "/KWh";
+  }
+
+  function calcular(){
+    calculado = true;
+    var p = num($("potencia").value);
+    if ($("unidad").value === "W") p = p / 1000;         // kW
+    var horas  = Math.min(leerTiempo($("tiempo").value) || 0, 24);
+    var dias   = Math.min(num($("dias").value), 31);
+    var factor = Math.min(num($("factor").value) || 100, 100) / 100;
+    var t = tarifa();
+
+    var kwhHora = p * factor;
+    var kwhDia  = kwhHora * horas;
+    var kwhPer  = kwhDia * dias;
+
+    $("rKwh").textContent    = (Math.round(kwhPer*100)/100).toString() + " KWh";
+    $("rTarifa").textContent = "$" + t.toFixed(4) + "/KWh";
+    $("rHora").textContent   = dinero(kwhHora * t);
+    $("rDia").textContent    = dinero(kwhDia * t);
+    $("rTotal").textContent  = dinero(kwhPer * t);
+
+    var pct = num(factura.kwh) > 0 ? (kwhPer / num(factura.kwh) * 100) : 0;
+    $("nota").textContent = kwhPer > 0
+      ? "Este dispositivo representa aproximadamente " + pct.toFixed(1) + " % del consumo de la factura (" + num(factura.kwh) + " KWh)."
+      : "Estimación aproximada basada en el promedio típico del dispositivo y en los cargos de tu factura.";
+  }
+
+  ["potencia","unidad","tiempo","dias","factor"].forEach(function(id){
+    $(id).addEventListener("input", resetResultados);
+    $(id).addEventListener("change", resetResultados);
+    $(id).addEventListener("keydown", function(e){ if (e.key === "Enter") calcular(); });
+  });
+  $("calcular").addEventListener("click", calcular);
+  $("tiempo").addEventListener("input", function(){
+    var v = enmascarar(this.value);
+    if (v !== this.value) this.value = v;
+    actualizarTiempoInfo(); resetResultados();
+  });
+  $("tiempo").addEventListener("blur", function(){
+    this.value = completarTiempo(this.value);
+    actualizarTiempoInfo(); resetResultados();
+  });
+
+  /* ---------- Selección de dispositivo (reemplaza datos anteriores) ---------- */
+  function aplicarDispositivo(x){
+    $("nombre").value   = x.n;
+    $("unidad").value   = "W";
+    $("potencia").value = x.w;
+    $("tiempo").value   = formatearTiempo(x.h);
+    actualizarTiempoInfo();
+    $("dias").value     = x.d;
+    $("factor").value   = x.f;
+    marcarSeleccion(x.n);
+    resetResultados();
+  }
+  function buscarExacto(texto){
+    var t = norm(texto);
+    for (var i=0;i<DISPOSITIVOS.length;i++){ if (norm(DISPOSITIVOS[i].n) === t) return DISPOSITIVOS[i]; }
+    return null;
+  }
+  $("nombre").addEventListener("input", function(){
+    var x = buscarExacto(this.value);
+    if (x) aplicarDispositivo(x);
+  });
+
+  /* ---------- Galería de dispositivos (iconos dibujados, funcionan sin internet) ---------- */
+  var ICONOS = {
+    "Refrigeradora": '<rect x="18" y="6" width="28" height="52" rx="3"/><path d="M18 26h28M40 12v8M40 31v12"/>',
+    "Vitrina refrigerante": '<rect x="14" y="6" width="36" height="52" rx="3"/><rect x="19" y="12" width="26" height="36" rx="1"/><path d="M19 24h26M19 36h26M22 53h20"/>',
+    "Congelador": '<rect x="10" y="22" width="44" height="28" rx="3"/><path d="M10 30h44M28 26h8M16 50v6M48 50v6"/>',
+    "Aire acondicionado 12000 BTU": '<rect x="6" y="12" width="52" height="20" rx="4"/><path d="M12 26h40M14 42q5 5 10 0M28 42q5 5 10 0M42 42q5 5 10 0M18 52q5 5 10 0M34 52q5 5 10 0"/>',
+    "Ventilador": '<circle cx="32" cy="24" r="15"/><circle cx="32" cy="24" r="3"/><path d="M32 21v-9M34.6 25.5l7.8 4.5M29.4 25.5l-7.8 4.5M32 39v15M22 56h20"/>',
+    "Ventilador de pared": '<path d="M6 6v52M6 30h14"/><circle cx="38" cy="30" r="16"/><circle cx="38" cy="30" r="3"/><path d="M38 27v-9M40.6 31.5l7.8 4.5M35.4 31.5l-7.8 4.5"/>',
+    "Ventilador de techo": '<path d="M32 4v12"/><circle cx="32" cy="20" r="4"/><path d="M28 21Q12 20 6 27Q20 28 28 24M36 21Q52 20 58 27Q44 28 36 24"/><path d="M24 32q8 20 16 0z"/>',
+    "Televisor": '<rect x="6" y="10" width="52" height="34" rx="3"/><path d="M32 44v8M22 54h20"/>',
+    "Computadora de escritorio": '<rect x="6" y="8" width="34" height="26" rx="2"/><path d="M23 34v8M16 44h14"/><rect x="46" y="10" width="12" height="38" rx="2"/><path d="M49 16h6M52 42h.01"/>',
+    "Laptop": '<rect x="14" y="14" width="36" height="24" rx="2"/><rect x="6" y="40" width="52" height="6" rx="2"/>',
+    "Router WiFi": '<rect x="8" y="34" width="48" height="14" rx="3"/><path d="M18 34V20M46 34V20M24 26q8-8 16 0M16 41h.01M24 41h.01"/>',
+    "Foco LED": '<path d="M32 6a15 15 0 0 1 9 27v6H23v-6A15 15 0 0 1 32 6z"/><path d="M24 45h16M27 51h10"/>',
+    "Licuadora": '<path d="M18 8h28l-5 30H23z"/><rect x="20" y="38" width="24" height="14" rx="3"/><path d="M26 45h12"/>',
+    "Microondas": '<rect x="6" y="14" width="52" height="34" rx="3"/><rect x="12" y="20" width="30" height="22" rx="2"/><path d="M48 22h.01M48 30h.01M48 38h.01"/>',
+    "Plancha de ropa": '<path d="M8 46h48C56 34 48 24 36 24H18C10 24 8 34 8 46z"/><path d="M22 24c0-10 22-10 22 0"/>',
+    "Lavadora": '<rect x="12" y="6" width="40" height="52" rx="3"/><circle cx="32" cy="36" r="13"/><circle cx="32" cy="36" r="7"/><path d="M18 14h.01M26 14h14"/>',
+    "Secadora de ropa": '<rect x="12" y="6" width="40" height="52" rx="3"/><circle cx="32" cy="36" r="13"/><path d="M26 34q3-4 6 0t6 0M26 40q3-4 6 0t6 0M18 14h.01M26 14h14"/>',
+    "Cafetera": '<rect x="16" y="8" width="28" height="10" rx="2"/><path d="M20 18v30"/><rect x="14" y="48" width="34" height="8" rx="2"/><path d="M30 38h12v6a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4z"/>',
+    "Olla arrocera": '<path d="M10 28h44v18a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6z"/><path d="M14 28q18-18 36 0M32 12h.01M6 36h4M54 36h4"/>',
+    "Freidora de aire": '<rect x="12" y="8" width="40" height="46" rx="9"/><circle cx="32" cy="21" r="6"/><rect x="22" y="34" width="20" height="7" rx="2"/>',
+    "Horno eléctrico": '<rect x="8" y="12" width="48" height="40" rx="3"/><rect x="14" y="26" width="36" height="20" rx="2"/><path d="M16 19h.01M26 19h.01M46 19h.01"/>',
+    "Cocina eléctrica": '<rect x="10" y="8" width="44" height="48" rx="3"/><circle cx="22" cy="20" r="5"/><circle cx="42" cy="20" r="5"/><rect x="16" y="34" width="32" height="16" rx="2"/>',
+    "Ducha eléctrica": '<path d="M16 18a16 10 0 0 1 32 0z"/><path d="M32 8V4M22 28v4M32 28v6M42 28v4M26 40v4M38 40v4"/>',
+    "Bomba de agua": '<rect x="8" y="26" width="28" height="20" rx="3"/><circle cx="46" cy="36" r="10"/><path d="M46 26V12M46 36h.01M6 52h50"/>',
+    "Dispensador de agua": '<rect x="24" y="4" width="16" height="16" rx="6"/><rect x="18" y="20" width="28" height="38" rx="3"/><path d="M28 32h8v5h-8z"/>',
+    "Secadora de cabello": '<rect x="8" y="12" width="36" height="18" rx="9"/><path d="M28 30l5 26h9l-4-26M44 18h8M44 24h8"/>',
+    "Caminadora NordicTrack": '<rect x="6" y="42" width="46" height="8" rx="4"/><path d="M48 42L44 18M44 18H34M12 50v6M46 50v6"/><rect x="28" y="10" width="14" height="8" rx="2"/>',
+    "Consola de videojuegos": '<path d="M14 22h36a8 8 0 0 1 8 8v8a6 6 0 0 1-10 4l-4-6H20l-4 6a6 6 0 0 1-10-4v-8a8 8 0 0 1 8-8z"/><path d="M20 28v8M16 32h8M42 30h.01M47 34h.01"/>',
+    "Cargador de celular": '<rect x="20" y="4" width="24" height="40" rx="4"/><path d="M32 38h.01M32 44v8"/><rect x="26" y="52" width="12" height="8" rx="2"/>',
+    "Tostadora": '<rect x="10" y="22" width="44" height="28" rx="6"/><path d="M20 22h12M36 22h12M54 34h4"/>',
+    "Aspiradora": '<circle cx="24" cy="42" r="14"/><circle cx="24" cy="42" r="4"/><path d="M34 32C44 22 46 12 56 12M52 8l4 4-4 4"/>',
+    "Lavavajillas": '<rect x="10" y="8" width="44" height="48" rx="3"/><path d="M10 20h44M20 14h.01M28 14h10"/><circle cx="32" cy="38" r="10"/>',
+    "Calentador eléctrico": '<rect x="14" y="12" width="36" height="40" rx="4"/><path d="M24 22v20M32 22v20M40 22v20M20 52v6M44 52v6"/>'
+  };
+
+  function marcarSeleccion(nombre){
+    var hijos = $("galeria").children;
+    for (var i = 0; i < hijos.length; i++){
+      hijos[i].classList.toggle("sel", hijos[i].getAttribute("data-n") === nombre);
+    }
+  }
+
+  DISPOSITIVOS.forEach(function(x){
+    if (!ICONOS[x.n]) return;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "tile";
+    b.setAttribute("data-n", x.n);
+    b.innerHTML = '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" ' +
+                  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONOS[x.n] + '</svg>' +
+                  '<span></span>';
+    b.lastChild.textContent = x.n;
+    b.addEventListener("click", function(){
+      aplicarDispositivo(x);
+      calcular();
+      setInfo("Seleccionado: " + x.n + ". Se aplicaron valores típicos; ajusta los watts si la placa del equipo indica otros.", false);
+    });
+    $("galeria").appendChild(b);
+  });
+
+  /* ---------- Mensaje informativo ---------- */
+  function setInfo(texto, error){
+    var el = $("idInfo");
+    el.textContent = texto;
+    el.className = texto ? ("on" + (error ? " err" : "")) : "";
+  }
+
+  /* ---------- Limpiar ---------- */
+  function limpiarCampos(){
+    $("nombre").value = ""; $("potencia").value = ""; $("unidad").value = "W";
+    $("tiempo").value = ""; $("dias").value = ""; $("factor").value = 100;
+    setInfo("", false);
+    actualizarTiempoInfo();
+    marcarSeleccion(null);
+    resetResultados();
+  }
+  $("limpiar").addEventListener("click", function(){ limpiarCampos(); $("nombre").focus(); });
+
+  /* ---------- Inicio ---------- */
+  pintarFactura(); actualizarFactura(); refrescar();
+})();
+</script>
+</body>
+</html>
